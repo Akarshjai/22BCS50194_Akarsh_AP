@@ -8,33 +8,32 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
+
 class Solution {
 public:
     ListNode* mergeKLists(vector<ListNode*>& lists) {
         if (lists.empty()) return nullptr;
         
-        auto compare = [](ListNode* a, ListNode* b) {
-            return a->val > b->val;
-        };
-        
-        priority_queue<ListNode*, vector<ListNode*>, decltype(compare)> minHeap(compare);
+        priority_queue<ListNode*, vector<ListNode*>, 
+            function<bool(ListNode*, ListNode*)>> pq([](ListNode* a, ListNode* b) {
+            return a->val > b->val;  // Min-heap comparison based on value
+        });
         
         for (ListNode* list : lists) {
-            if (list) {
-                minHeap.push(list);
-            }
+            if (list) pq.push(list);
         }
         
         ListNode* dummy = new ListNode(0);
         ListNode* current = dummy;
         
-        while (!minHeap.empty()) {
-            ListNode* node = minHeap.top();
-            minHeap.pop();
+        while (!pq.empty()) {
+            ListNode* node = pq.top();
+            pq.pop();
             current->next = node;
             current = current->next;
+            
             if (node->next) {
-                minHeap.push(node->next);
+                pq.push(node->next);
             }
         }
         
